@@ -6,6 +6,7 @@ import networkx as nx
 import osmnx as ox
 from ortools.constraint_solver import pywrapcp
 from ortools.constraint_solver import routing_enums_pb2
+import sys
 
 
 # TODO: osmnx/networkxを廃止し、overpass api/OR-toolsのgraphを使う
@@ -14,7 +15,7 @@ from ortools.constraint_solver import routing_enums_pb2
 class Vehicle(object):
 
     def __init__(self):
-        self._capacity = 70
+        self._capacity = 80
         self._speed = 25*1000/60/60   # 25km/h -> m/sec
 
     @property
@@ -158,8 +159,8 @@ def add_time_window_constraints(routing, data, time_evaluator):
     horizon = 14400 # 4時間 -> 秒
     routing.AddDimension(
         time_evaluator,
-        horizon, # 車両ごとの待ち時間の上限
-        horizon, # 車両ごとの走行時間の上限
+        horizon, # 待ち時間の上限
+        horizon, # 走行時間の上限
         True,
         time)
     time_dimension = routing.GetDimensionOrDie(time)
@@ -316,11 +317,12 @@ def secToHourMinSecStr(sec):
 class ShopData(object):
 
     def __init__(self):
+
        self.locations = [ \
         {'nearest_node': 1809615572, 'time':('00:00', '00:00'), 'name': 'アークヒルズ店', 'lat': 35.6681770, 'lon': 139.7397242},  # ここがDepo
-        {'nearest_node': 251864110,  'time':('00:00', '02:00'), 'name': '港赤坂九丁目店', 'lat': 35.6680961, 'lon': 139.7328141},
+        {'nearest_node': 251864110,  'time':('00:00', '00:30'), 'name': '港赤坂九丁目店', 'lat': 35.6680961, 'lon': 139.7328141},
         {'nearest_node': 1760515775, 'time':('00:00', '02:00'), 'name': '城山トラストタワー', 'lat': 35.6649108, 'lon': 139.7431470},
-        {'nearest_node': 2162858601, 'time':('00:00', '02:00'), 'name': '合同庁舎第７号館', 'lat': 35.6715977, 'lon': 139.7483260},
+        {'nearest_node': 2162858601, 'time':('00:00', '00:50'), 'name': '合同庁舎第７号館', 'lat': 35.6715977, 'lon': 139.7483260},
         {'nearest_node': 499193143,  'time':('00:00', '02:00'), 'name': '東麻布三丁目', 'lat': 35.6571622, 'lon': 139.7392354},
         {'nearest_node': 1618521241, 'time':('00:00', '02:00'), 'name': '虎ノ門一丁目', 'lat': 35.6685010, 'lon': 139.7489690},
         {'nearest_node': 499189994,  'time':('00:00', '02:00'), 'name': '赤坂六丁目店', 'lat': 35.6700138, 'lon': 139.7337181},
@@ -330,6 +332,7 @@ class ShopData(object):
         {'nearest_node': 4414312668, 'time':('00:00', '02:00'), 'name': '赤坂氷川公園前店', 'lat': 35.6713681, 'lon': 139.7372166},
         {'nearest_node': 1655503992, 'time':('00:00', '02:00'), 'name': '虎ノ門琴平点', 'lat': 35.6703080, 'lon': 139.7487411},
         {'nearest_node': 1482491357, 'time':('00:00', '02:00'), 'name': '新橋六丁目店', 'lat': 35.661263, 'lon': 139.754532}]
+
 
        # 店舗ごとの集荷需要
        self.demands = [1, 19, 21, 6, 19, 7, 12, 16, 6, 16, 8, 14, 21]
