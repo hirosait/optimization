@@ -1,12 +1,11 @@
 """Capacitated Vehicle Routing Problem with Time Windows (CVRPTW).
 """
-
 import folium
+import functools
 import networkx as nx
 import osmnx as ox
 from ortools.constraint_solver import pywrapcp
 from ortools.constraint_solver import routing_enums_pb2
-import sys
 
 
 # TODO: osmnx/networkxを廃止し、overpass api/OR-toolsのgraphを使う
@@ -81,19 +80,7 @@ class CreateDistanceCallback(object):
                 self.matrix[from_node][to_node] = distance(x, y)
 
 
-    def memoize(f):
-        """キャッシュ用デコレータ"""
-        cache = {}
-
-        def helper(*args):
-            if args not in cache:
-                cache[args] = f(*args)
-            return cache[args]
-
-        return helper
-
-
-    @memoize
+    @functools.lru_cache()
     def Distance(self, from_node, to_node):
         """
         ノード間の距離を生成したマトリックスから返す
